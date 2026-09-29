@@ -1,0 +1,53 @@
+name: Validate pyRevit extension
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate structure and metadata
+        shell: python
+        run: |
+          import json
+          import pathlib
+          import re
+
+          root = pathlib.Path(".")
+          required = [root / "EOM.tab", root / "lib" / "plugin_version.py", root / "bundle.yaml", root / "extension.json"]
+          missing = [str(path) for path in required if not path.exists()]
+          if missing:
+              raise SystemExit("Missing required paths: " + ", ".join(missing))
+
+          metadata = json.loads((root / "extension.json").read_text(encoding="utf-8"))
+          for key in ("type", "name", "description", "url"):
+              if not metadata.get(key):
+                  raise SystemExit("extension.json is missing: " + key)
+
+          version_text = (root / "lib" / "plugin_version.py").read_text(encoding="utf-8")
+          for field in ("VERSION", "BUILD_ID"):
+              if not re.search(r"^%s\s*=\s*u?[\"'][^\"']+[\"']" % field, version_text, re.M):
+                  raise SystemExit("plugin_version.py is missing: " + field)
+
+          forbidden = []
+          for path in root.rglob("*"):
+              if path.name in {"__pycache__", ".pytest_cache"}:
+                  forbidden.append(str(path))
+              elif path.is_file() and path.suffix.lower() in {".pyc", ".pyo"}:
+                  forbidden.append(str(path))
+          if forbidden:
+              raise SystemExit("Generated files are forbidden:\n" + "\n".join(forbidden))
+      - name: Compile Python sources
+        run: python -m compileall -q .
