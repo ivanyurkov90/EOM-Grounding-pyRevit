@@ -1,0 +1,54 @@
+name: Apply EOM Grounding r32
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/apply-r32.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply-r32:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply verified r32 patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git am .github/workflows/0001-Add-project-profile-and-reorganize-ribbon.patch
+
+      - name: Validate extension structure
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          root = Path('.')
+          files = list(root.rglob('*.py'))
+          for path in files:
+              compile(path.read_bytes(), str(path), 'exec')
+
+          buttons = list((root / 'EOM.tab').rglob('*.pushbutton'))
+          assert len(buttons) == 8, len(buttons)
+          for button in buttons:
+              for required in ('script.py', 'bundle.yaml', 'icon.png'):
+                  assert (button / required).is_file(), str(button / required)
+
+          version = (root / 'lib' / 'plugin_version.py').read_text(encoding='utf-8')
+          assert '0.10.43-test-project-profile' in version
+          assert '20260930-r32' in version
+          print('compiled:', len(files), 'buttons:', len(buttons))
+          PY
+
+      - name: Remove one-time publisher and push
+        run: |
+          git rm .github/workflows/apply-r32.yml
+          git rm .github/workflows/0001-Add-project-profile-and-reorganize-ribbon.patch
+          git commit -m "Remove one-time r32 publisher"
+          git push origin HEAD:main

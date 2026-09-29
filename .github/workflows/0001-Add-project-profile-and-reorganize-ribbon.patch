@@ -1,0 +1,1101 @@
+From 060a11b88d093f3f6f57c5daab7cf7bfb3805597 Mon Sep 17 00:00:00 2001
+From: ivanyurkov90 <lvanyurkov68@gmail.com>
+Date: Wed, 30 Sep 2026 01:35:56 +0600
+Subject: [PATCH] Add project profile and reorganize ribbon
+
+---
+ .../CalcZU.pushbutton/bundle.yaml             |   0
+ .../CalcZU.pushbutton/icon.png                | Bin
+ .../CalcZU.pushbutton/script.py               |   0
+ .../SingleRod.pushbutton/bundle.yaml          |   0
+ .../SingleRod.pushbutton/icon.png             | Bin
+ .../SingleRod.pushbutton/script.py            |   0
+ EOM.tab/Calculation.panel/bundle.yaml         |   4 +
+ .../Documentation.pushbutton/bundle.yaml      |   0
+ .../Documentation.pushbutton/icon.png         | Bin
+ .../Documentation.pushbutton/script.py        |   0
+ EOM.tab/Documentation.panel/bundle.yaml       |   3 +
+ EOM.tab/Grounding.panel/bundle.yaml           |   1 -
+ .../EditContour.pushbutton/bundle.yaml        |   0
+ .../EditContour.pushbutton/icon.png           | Bin
+ .../EditContour.pushbutton/script.py          |   0
+ .../UpdateZU.pushbutton/bundle.yaml           |   0
+ .../UpdateZU.pushbutton/icon.png              | Bin
+ .../UpdateZU.pushbutton/script.py             |   0
+ EOM.tab/Model.panel/bundle.yaml               |   4 +
+ .../ProjectData.pushbutton/bundle.yaml        |   4 +
+ .../ProjectData.pushbutton/icon.png           | Bin 0 -> 1200 bytes
+ .../ProjectData.pushbutton/script.py          |  49 +++++
+ EOM.tab/Project.panel/bundle.yaml             |   3 +
+ .../Diagnostics.pushbutton/bundle.yaml        |   0
+ .../Diagnostics.pushbutton/icon.png           | Bin
+ .../Diagnostics.pushbutton/script.py          |   0
+ .../OnlineData.pushbutton/bundle.yaml         |   0
+ .../OnlineData.pushbutton/icon.png            | Bin
+ .../OnlineData.pushbutton/script.py           |   0
+ EOM.tab/Service.panel/bundle.yaml             |   4 +
+ EOM.tab/bundle.yaml                           |   6 +
+ README.md                                     |   6 +-
+ lib/calculation_tables.py                     |   7 +
+ lib/grounding_core.py                         |  12 ++
+ lib/grounding_ui.py                           |   3 +-
+ lib/panel_context.py                          |  38 +---
+ lib/plugin_version.py                         |   4 +-
+ lib/project_context.py                        |  18 +-
+ lib/project_data_ui.py                        | 191 ++++++++++++++++++
+ lib/project_profile.py                        | 152 ++++++++++++++
+ lib/revit_grounding_model.py                  |  83 +-------
+ lib/revit_output.py                           |  21 +-
+ lib/single_rod_ui.py                          |   6 +-
+ 43 files changed, 483 insertions(+), 136 deletions(-)
+ rename EOM.tab/{Grounding.panel => Calculation.panel}/CalcZU.pushbutton/bundle.yaml (100%)
+ rename EOM.tab/{Grounding.panel => Calculation.panel}/CalcZU.pushbutton/icon.png (100%)
+ rename EOM.tab/{Grounding.panel => Calculation.panel}/CalcZU.pushbutton/script.py (100%)
+ rename EOM.tab/{Grounding.panel => Calculation.panel}/SingleRod.pushbutton/bundle.yaml (100%)
+ rename EOM.tab/{Grounding.panel => Calculation.panel}/SingleRod.pushbutton/icon.png (100%)
+ rename EOM.tab/{Grounding.panel => Calculation.panel}/SingleRod.pushbutton/script.py (100%)
+ create mode 100644 EOM.tab/Calculation.panel/bundle.yaml
+ rename EOM.tab/{Grounding.panel => Documentation.panel}/Documentation.pushbutton/bundle.yaml (100%)
+ rename EOM.tab/{Grounding.panel => Documentation.panel}/Documentation.pushbutton/icon.png (100%)
+ rename EOM.tab/{Grounding.panel => Documentation.panel}/Documentation.pushbutton/script.py (100%)
+ create mode 100644 EOM.tab/Documentation.panel/bundle.yaml
+ delete mode 100644 EOM.tab/Grounding.panel/bundle.yaml
+ rename EOM.tab/{Grounding.panel => Model.panel}/EditContour.pushbutton/bundle.yaml (100%)
+ rename EOM.tab/{Grounding.panel => Model.panel}/EditContour.pushbutton/icon.png (100%)
+ rename EOM.tab/{Grounding.panel => Model.panel}/EditContour.pushbutton/script.py (100%)
+ rename EOM.tab/{Grounding.panel => Model.panel}/UpdateZU.pushbutton/bundle.yaml (100%)
+ rename EOM.tab/{Grounding.panel => Model.panel}/UpdateZU.pushbutton/icon.png (100%)
+ rename EOM.tab/{Grounding.panel => Model.panel}/UpdateZU.pushbutton/script.py (100%)
+ create mode 100644 EOM.tab/Model.panel/bundle.yaml
+ create mode 100644 EOM.tab/Project.panel/ProjectData.pushbutton/bundle.yaml
+ create mode 100644 EOM.tab/Project.panel/ProjectData.pushbutton/icon.png
+ create mode 100644 EOM.tab/Project.panel/ProjectData.pushbutton/script.py
+ create mode 100644 EOM.tab/Project.panel/bundle.yaml
+ rename EOM.tab/{Grounding.panel => Service.panel}/Diagnostics.pushbutton/bundle.yaml (100%)
+ rename EOM.tab/{Grounding.panel => Service.panel}/Diagnostics.pushbutton/icon.png (100%)
+ rename EOM.tab/{Grounding.panel => Service.panel}/Diagnostics.pushbutton/script.py (100%)
+ rename EOM.tab/{Grounding.panel => Service.panel}/OnlineData.pushbutton/bundle.yaml (100%)
+ rename EOM.tab/{Grounding.panel => Service.panel}/OnlineData.pushbutton/icon.png (100%)
+ rename EOM.tab/{Grounding.panel => Service.panel}/OnlineData.pushbutton/script.py (100%)
+ create mode 100644 EOM.tab/Service.panel/bundle.yaml
+ create mode 100644 lib/project_data_ui.py
+ create mode 100644 lib/project_profile.py
+
+diff --git a/EOM.tab/Grounding.panel/CalcZU.pushbutton/bundle.yaml b/EOM.tab/Calculation.panel/CalcZU.pushbutton/bundle.yaml
+similarity index 100%
+rename from EOM.tab/Grounding.panel/CalcZU.pushbutton/bundle.yaml
+rename to EOM.tab/Calculation.panel/CalcZU.pushbutton/bundle.yaml
+diff --git a/EOM.tab/Grounding.panel/CalcZU.pushbutton/icon.png b/EOM.tab/Calculation.panel/CalcZU.pushbutton/icon.png
+similarity index 100%
+rename from EOM.tab/Grounding.panel/CalcZU.pushbutton/icon.png
+rename to EOM.tab/Calculation.panel/CalcZU.pushbutton/icon.png
+diff --git a/EOM.tab/Grounding.panel/CalcZU.pushbutton/script.py b/EOM.tab/Calculation.panel/CalcZU.pushbutton/script.py
+similarity index 100%
+rename from EOM.tab/Grounding.panel/CalcZU.pushbutton/script.py
+rename to EOM.tab/Calculation.panel/CalcZU.pushbutton/script.py
+diff --git a/EOM.tab/Grounding.panel/SingleRod.pushbutton/bundle.yaml b/EOM.tab/Calculation.panel/SingleRod.pushbutton/bundle.yaml
+similarity index 100%
+rename from EOM.tab/Grounding.panel/SingleRod.pushbutton/bundle.yaml
+rename to EOM.tab/Calculation.panel/SingleRod.pushbutton/bundle.yaml
+diff --git a/EOM.tab/Grounding.panel/SingleRod.pushbutton/icon.png b/EOM.tab/Calculation.panel/SingleRod.pushbutton/icon.png
+similarity index 100%
+rename from EOM.tab/Grounding.panel/SingleRod.pushbutton/icon.png
+rename to EOM.tab/Calculation.panel/SingleRod.pushbutton/icon.png
+diff --git a/EOM.tab/Grounding.panel/SingleRod.pushbutton/script.py b/EOM.tab/Calculation.panel/SingleRod.pushbutton/script.py
+similarity index 100%
+rename from EOM.tab/Grounding.panel/SingleRod.pushbutton/script.py
+rename to EOM.tab/Calculation.panel/SingleRod.pushbutton/script.py
+diff --git a/EOM.tab/Calculation.panel/bundle.yaml b/EOM.tab/Calculation.panel/bundle.yaml
+new file mode 100644
+index 0000000..151e66c
+--- /dev/null
++++ b/EOM.tab/Calculation.panel/bundle.yaml
+@@ -0,0 +1,4 @@
++title: "Расчет"
++layout:
++  - CalcZU
++  - SingleRod
+diff --git a/EOM.tab/Grounding.panel/Documentation.pushbutton/bundle.yaml b/EOM.tab/Documentation.panel/Documentation.pushbutton/bundle.yaml
+similarity index 100%
+rename from EOM.tab/Grounding.panel/Documentation.pushbutton/bundle.yaml
+rename to EOM.tab/Documentation.panel/Documentation.pushbutton/bundle.yaml
+diff --git a/EOM.tab/Grounding.panel/Documentation.pushbutton/icon.png b/EOM.tab/Documentation.panel/Documentation.pushbutton/icon.png
+similarity index 100%
+rename from EOM.tab/Grounding.panel/Documentation.pushbutton/icon.png
+rename to EOM.tab/Documentation.panel/Documentation.pushbutton/icon.png
+diff --git a/EOM.tab/Grounding.panel/Documentation.pushbutton/script.py b/EOM.tab/Documentation.panel/Documentation.pushbutton/script.py
+similarity index 100%
+rename from EOM.tab/Grounding.panel/Documentation.pushbutton/script.py
+rename to EOM.tab/Documentation.panel/Documentation.pushbutton/script.py
+diff --git a/EOM.tab/Documentation.panel/bundle.yaml b/EOM.tab/Documentation.panel/bundle.yaml
+new file mode 100644
+index 0000000..b2679e7
+--- /dev/null
++++ b/EOM.tab/Documentation.panel/bundle.yaml
+@@ -0,0 +1,3 @@
++title: "Документация"
++layout:
++  - Documentation
+diff --git a/EOM.tab/Grounding.panel/bundle.yaml b/EOM.tab/Grounding.panel/bundle.yaml
+deleted file mode 100644
+index d621172..0000000
+--- a/EOM.tab/Grounding.panel/bundle.yaml
++++ /dev/null
+@@ -1 +0,0 @@
+-title: "Заземление"
+diff --git a/EOM.tab/Grounding.panel/EditContour.pushbutton/bundle.yaml b/EOM.tab/Model.panel/EditContour.pushbutton/bundle.yaml
+similarity index 100%
+rename from EOM.tab/Grounding.panel/EditContour.pushbutton/bundle.yaml
+rename to EOM.tab/Model.panel/EditContour.pushbutton/bundle.yaml
+diff --git a/EOM.tab/Grounding.panel/EditContour.pushbutton/icon.png b/EOM.tab/Model.panel/EditContour.pushbutton/icon.png
+similarity index 100%
+rename from EOM.tab/Grounding.panel/EditContour.pushbutton/icon.png
+rename to EOM.tab/Model.panel/EditContour.pushbutton/icon.png
+diff --git a/EOM.tab/Grounding.panel/EditContour.pushbutton/script.py b/EOM.tab/Model.panel/EditContour.pushbutton/script.py
+similarity index 100%
+rename from EOM.tab/Grounding.panel/EditContour.pushbutton/script.py
+rename to EOM.tab/Model.panel/EditContour.pushbutton/script.py
+diff --git a/EOM.tab/Grounding.panel/UpdateZU.pushbutton/bundle.yaml b/EOM.tab/Model.panel/UpdateZU.pushbutton/bundle.yaml
+similarity index 100%
+rename from EOM.tab/Grounding.panel/UpdateZU.pushbutton/bundle.yaml
+rename to EOM.tab/Model.panel/UpdateZU.pushbutton/bundle.yaml
+diff --git a/EOM.tab/Grounding.panel/UpdateZU.pushbutton/icon.png b/EOM.tab/Model.panel/UpdateZU.pushbutton/icon.png
+similarity index 100%
+rename from EOM.tab/Grounding.panel/UpdateZU.pushbutton/icon.png
+rename to EOM.tab/Model.panel/UpdateZU.pushbutton/icon.png
+diff --git a/EOM.tab/Grounding.panel/UpdateZU.pushbutton/script.py b/EOM.tab/Model.panel/UpdateZU.pushbutton/script.py
+similarity index 100%
+rename from EOM.tab/Grounding.panel/UpdateZU.pushbutton/script.py
+rename to EOM.tab/Model.panel/UpdateZU.pushbutton/script.py
+diff --git a/EOM.tab/Model.panel/bundle.yaml b/EOM.tab/Model.panel/bundle.yaml
+new file mode 100644
+index 0000000..db98666
+--- /dev/null
++++ b/EOM.tab/Model.panel/bundle.yaml
+@@ -0,0 +1,4 @@
++title: "Модель"
++layout:
++  - EditContour
++  - UpdateZU
+diff --git a/EOM.tab/Project.panel/ProjectData.pushbutton/bundle.yaml b/EOM.tab/Project.panel/ProjectData.pushbutton/bundle.yaml
+new file mode 100644
+index 0000000..9127dfa
+--- /dev/null
++++ b/EOM.tab/Project.panel/ProjectData.pushbutton/bundle.yaml
+@@ -0,0 +1,4 @@
++title: "Данные\nпроекта"
++tooltip: "Тип объекта, адрес, выделенная мощность, система заземления и ограничивающий вводной аппарат."
++author: "ЭОМ / OpenAI"
++min_revit_version: 2023
+diff --git a/EOM.tab/Project.panel/ProjectData.pushbutton/icon.png b/EOM.tab/Project.panel/ProjectData.pushbutton/icon.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..d8f25c3ac56970a0c111589f8a65ace244f90630
+GIT binary patch
+literal 1200
+zcmV;h1W)^kP)<h;3K|Lk000e1NJLTq002M$002M;1^@s6s%dfF00001b5ch_0Itp)
+z=>Px#1ZP1_K>z@;j|==^1poj532;bRa{vGi!vFvd!vV){sAK>D1Vu?iK~#8N?VC$z
+z)KC<LUAlDX(q+L{7hNa_c2g8};i|e&@C8cM+WNo|e3U*^#0Q9?w%}lEE0wBP-_;hC
+zN>S8Sd{nD=10uE9CI~(!Q?8uUG?{a5UNxCXh8*}{xH<PE|DSu$q-8Q`QXFx_5r@lQ
+z3ZKRlwU{aCRZLN<!iRQU#q8_v0(|ZN6>LOZD9PzwNlEhv(GP}TEuMlYe2OHGCI!W#
+z#4R?&r($i60h1&-%>)IbhpZ}|w}qsr7f7LK(}Oiy1{+B)7Ziv*Oim@RR$=7L(#OcE
+zg0+%>y+S7D5stlpDe6)@DW8DtjWuTkQ&JUpQa%9>OjvV9Kmwi=B<;@!`M}pdWIQNB
+zW5Df~L%e8v8!y<@!e>>q@^cSAlAIt2g#is+?={gN-pt<CUXtrKIX7Te%TprU%$k!A
+z0^JfhGvM{$PfZ*aEMjrpP5zjDBQ*%aKe&`!$)%pQvCsIpfSecrVn7rY3ftgN`%6AI
+zahV*0G3XPxRtDY8T&gV?qj4QQE+Fd$n429I*!5;u%ds=awmF_&Y8U{k03R2SRRgS=
+z9f<Ay^gSaN_Px~>5jMwX9ftU$^TM|UteV~WGu^gL4#eU)0BMdb8w~?GPm?-U1a5#`
+zv#Y)Ig5-;UWpA}|wC4E!wITk%Y%YENLTXqMr~wn+%L1TxST)DK^E(X#uI(pt?Fh^O
+zH_gr~B17kv*Ykne8HNF{8U%B#2*dy{&CV;hIo2lD8{#o{j+6Nq-wl{(v-67H97`&W
+z^UkXIRD4|lmzvASJdAG!_|fdVqBlpf3P8O6xwVqaGvkW^qP+=BFTcQR+WJVopPab!
+zju&pdIDXDWmB%v8c-2GZnDNB`*z;I?(05-4>YLBkwr9z>`1{9JkbI0U1^`wMEZH<*
+z^|pQE;y={QboGtkn*jjyfCbeza%Mo+zGB0GD>Wongs%obm&Z%e&H&gtaNG&Vv-$?n
+z&zIP_#n|^Ao(6q20B~afh$*SMo{{GSJXDFEA)x-O&5gXby2vo#ev;%_krM+>cDyA5
+z-2ne9z_p<Mp<Qdo#rGea<N7Z_ASVXk9Jg52g2&;8-ODrsn$DggId+7?fYKxPv@r~f
+zd#MFag`ylgLScX?$8DaQ96MqIVgq6WVgs<|jED`04Tueh4ZxG^z!y|{_^vi)2FA=e
+z^LJm>#xOAMwN~g1$Tm4Q0Dj^kx-&teuMRjrz9u_-H$W%bE5YlX*KsyLP9^XpH|Q(D
+ziXBZ)$ey>Oto{+HVaDs7*Ksx=Pk$z>!$wjYu;z?l!>KuVQa-_yKZRH`3HVJdo|qq~
+zzZm0_v0f4rZG@pm9!+Ac!T^^d_==1J>L9!UgSA=)>=jrtv`{pG_nxpu$N1L}`*E>o
+zp$<++ydK(iP(}~X!Vy3oO?q1PPBHe*V5$O|WN4973GF)Fbo)5sh~qD|5ZA8(Uj$<S
+O0000<MNUMnLSTaO_#{C9
+
+literal 0
+HcmV?d00001
+
+diff --git a/EOM.tab/Project.panel/ProjectData.pushbutton/script.py b/EOM.tab/Project.panel/ProjectData.pushbutton/script.py
+new file mode 100644
+index 0000000..db05281
+--- /dev/null
++++ b/EOM.tab/Project.panel/ProjectData.pushbutton/script.py
+@@ -0,0 +1,49 @@
++# -*- coding: utf-8 -*-
++from __future__ import print_function
++
++import os
++import sys
++
++__title__ = u"Данные\nпроекта"
++__author__ = u"ЭОМ / OpenAI"
++__doc__ = u"Единые исходные данные объекта для расчёта ЗУ и документации."
++__min_revit_ver__ = 2023
++
++THIS_DIR = os.path.dirname(__file__)
++EXT_ROOT = os.path.abspath(os.path.join(THIS_DIR, os.pardir, os.pardir, os.pardir))
++LIB_DIR = os.path.join(EXT_ROOT, "lib")
++if LIB_DIR not in sys.path:
++    sys.path.append(LIB_DIR)
++
++from pyrevit import revit, DB
++from eom_ui_style import show_message
++from project_context import resolve_project_context
++from project_data_ui import show_project_data_form
++from project_profile import write_project_profile
++
++
++def main():
++    doc = revit.doc
++    if doc is None:
++        show_message(u"Нет открытого проекта Revit.", warn_icon=True)
++        return
++    values = show_project_data_form(resolve_project_context(doc, DB))
++    if values is None:
++        return
++    try:
++        saved = write_project_profile(doc, DB, values)
++    except Exception as ex:
++        show_message(u"Не удалось сохранить данные проекта:\n\n{}".format(ex),
++                     title=u"ЭОМ — Данные проекта", warn_icon=True)
++        return
++    show_message(
++        u"Данные проекта сохранены.\n\nОбъект: {}\nАдрес: {}\nВыделенная мощность: {} кВт\nСистема: {}"
++        .format(saved.get("project_object_type") or u"—",
++                saved.get("project_address") or u"—",
++                saved.get("allocated_power_kw") or u"—",
++                saved.get("system") or u"—"),
++        title=u"ЭОМ — Данные проекта")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/EOM.tab/Project.panel/bundle.yaml b/EOM.tab/Project.panel/bundle.yaml
+new file mode 100644
+index 0000000..ba65094
+--- /dev/null
++++ b/EOM.tab/Project.panel/bundle.yaml
+@@ -0,0 +1,3 @@
++title: "Проект"
++layout:
++  - ProjectData
+diff --git a/EOM.tab/Grounding.panel/Diagnostics.pushbutton/bundle.yaml b/EOM.tab/Service.panel/Diagnostics.pushbutton/bundle.yaml
+similarity index 100%
+rename from EOM.tab/Grounding.panel/Diagnostics.pushbutton/bundle.yaml
+rename to EOM.tab/Service.panel/Diagnostics.pushbutton/bundle.yaml
+diff --git a/EOM.tab/Grounding.panel/Diagnostics.pushbutton/icon.png b/EOM.tab/Service.panel/Diagnostics.pushbutton/icon.png
+similarity index 100%
+rename from EOM.tab/Grounding.panel/Diagnostics.pushbutton/icon.png
+rename to EOM.tab/Service.panel/Diagnostics.pushbutton/icon.png
+diff --git a/EOM.tab/Grounding.panel/Diagnostics.pushbutton/script.py b/EOM.tab/Service.panel/Diagnostics.pushbutton/script.py
+similarity index 100%
+rename from EOM.tab/Grounding.panel/Diagnostics.pushbutton/script.py
+rename to EOM.tab/Service.panel/Diagnostics.pushbutton/script.py
+diff --git a/EOM.tab/Grounding.panel/OnlineData.pushbutton/bundle.yaml b/EOM.tab/Service.panel/OnlineData.pushbutton/bundle.yaml
+similarity index 100%
+rename from EOM.tab/Grounding.panel/OnlineData.pushbutton/bundle.yaml
+rename to EOM.tab/Service.panel/OnlineData.pushbutton/bundle.yaml
+diff --git a/EOM.tab/Grounding.panel/OnlineData.pushbutton/icon.png b/EOM.tab/Service.panel/OnlineData.pushbutton/icon.png
+similarity index 100%
+rename from EOM.tab/Grounding.panel/OnlineData.pushbutton/icon.png
+rename to EOM.tab/Service.panel/OnlineData.pushbutton/icon.png
+diff --git a/EOM.tab/Grounding.panel/OnlineData.pushbutton/script.py b/EOM.tab/Service.panel/OnlineData.pushbutton/script.py
+similarity index 100%
+rename from EOM.tab/Grounding.panel/OnlineData.pushbutton/script.py
+rename to EOM.tab/Service.panel/OnlineData.pushbutton/script.py
+diff --git a/EOM.tab/Service.panel/bundle.yaml b/EOM.tab/Service.panel/bundle.yaml
+new file mode 100644
+index 0000000..e5f104a
+--- /dev/null
++++ b/EOM.tab/Service.panel/bundle.yaml
+@@ -0,0 +1,4 @@
++title: "Сервис"
++layout:
++  - OnlineData
++  - Diagnostics
+diff --git a/EOM.tab/bundle.yaml b/EOM.tab/bundle.yaml
+index ed3c55f..6eff583 100644
+--- a/EOM.tab/bundle.yaml
++++ b/EOM.tab/bundle.yaml
+@@ -1 +1,7 @@
+ title: "ЭОМ"
++layout:
++  - Project
++  - Calculation
++  - Model
++  - Documentation
++  - Service
+diff --git a/README.md b/README.md
+index 9bb4964..e994079 100644
+--- a/README.md
++++ b/README.md
+@@ -28,7 +28,9 @@ pyrevit reload
+ 
+ ## Текущая сборка
+ 
+-- VERSION: `0.10.42-test-audit-fixes`
+-- BUILD_ID: `20260929-r31`
++- VERSION: `0.10.43-test-project-profile`
++- BUILD_ID: `20260930-r32`
++
++В сборке добавлен единый профиль проекта (`Дом/Квартира`, адрес, выделенная мощность, система заземления и вводной аппарат), а вкладка `ЭОМ` разделена на панели `Проект`, `Расчет`, `Модель`, `Документация` и `Сервис`.
+ 
+ Основной репозиторий разработки: [ivanyurkov90/EOM-Grounding](https://github.com/ivanyurkov90/EOM-Grounding).
+diff --git a/lib/calculation_tables.py b/lib/calculation_tables.py
+index e61fc0d..068a7ca 100644
+--- a/lib/calculation_tables.py
++++ b/lib/calculation_tables.py
+@@ -138,12 +138,19 @@ def _input_rows(data, result, single=False):
+     else:
+         rows.append(_row(u"Панель с ГЗШ", u"ГЗШ", u"Не выбрана", u"Требуется привязка к панели Revit"))
+     rows.extend([
++        _row(u"Тип объекта", u"—", data.get("project_object_type", u""), u"Профиль проекта"),
+         _row(u"Система заземления", u"—", data.get("system", u""), u""),
+         _row(u"Назначение ЗУ", u"—", data.get("purpose", u""), u""),
+         _row(u"Тип ввода", u"—", data.get("supply_type", u""), u""),
+     ])
+     if data.get("project_address"):
+         rows.append(_row(u"Адрес объекта", u"—", data.get("project_address"), data.get("location_data_source", u"")))
++    if data.get("allocated_power_kw"):
++        rows.append(_row(u"Выделенная мощность", u"Pвыд",
++                         u"{} кВт".format(data.get("allocated_power_kw")), u"Профиль проекта"))
++    if data.get("incoming_device_type"):
++        rows.append(_row(u"Аппарат на вводе", u"—", data.get("incoming_device_type"),
++                         u"Ограничивает вводную мощность"))
+     if data.get("soil_type"):
+         rows.append(_row(u"Тип грунта", u"—", data.get("soil_type"), u""))
+     rows.extend([
+diff --git a/lib/grounding_core.py b/lib/grounding_core.py
+index 69cc92e..0066a45 100644
+--- a/lib/grounding_core.py
++++ b/lib/grounding_core.py
+@@ -1111,10 +1111,16 @@ def format_report(data, result, title=None):
+     else:
+         lines.append(u"Панель с ГЗШ: не выбрана")
+     lines.append(u"Система: {}".format(data.get("system", "")))
++    if data.get("project_object_type"):
++        lines.append(u"Тип объекта: {}".format(data.get("project_object_type")))
+     lines.append(u"Назначение: {}".format(data.get("purpose", "")))
+     lines.append(u"Ввод: {}".format(data.get("supply_type", "")))
+     if data.get("project_address"):
+         lines.append(u"Адрес проекта: {}".format(data.get("project_address")))
++    if data.get("allocated_power_kw"):
++        lines.append(u"Выделенная мощность: {} кВт".format(data.get("allocated_power_kw")))
++    if data.get("incoming_device_type"):
++        lines.append(u"Аппарат на вводе: {}".format(data.get("incoming_device_type")))
+     if data.get("normalized_address") and data.get("normalized_address") != data.get("project_address"):
+         lines.append(u"Нормализованный адрес: {}".format(data.get("normalized_address")))
+     if data.get("latitude") is not None and data.get("longitude") is not None:
+@@ -1494,10 +1500,16 @@ def format_single_rod_report(data, result):
+     else:
+         lines.append(u"Панель с ГЗШ: не выбрана")
+     lines.append(u"Система: {}".format(data.get("system", "")))
++    if data.get("project_object_type"):
++        lines.append(u"Тип объекта: {}".format(data.get("project_object_type")))
+     lines.append(u"Назначение: {}".format(data.get("purpose", "")))
+     lines.append(u"Ввод: {}".format(data.get("supply_type", "")))
+     if data.get("project_address"):
+         lines.append(u"Адрес проекта: {}".format(data.get("project_address")))
++    if data.get("allocated_power_kw"):
++        lines.append(u"Выделенная мощность: {} кВт".format(data.get("allocated_power_kw")))
++    if data.get("incoming_device_type"):
++        lines.append(u"Аппарат на вводе: {}".format(data.get("incoming_device_type")))
+     if data.get("normalized_address") and data.get("normalized_address") != data.get("project_address"):
+         lines.append(u"Нормализованный адрес: {}".format(data.get("normalized_address")))
+     if data.get("latitude") is not None and data.get("longitude") is not None:
+diff --git a/lib/grounding_ui.py b/lib/grounding_ui.py
+index 4a1a357..8adc399 100644
+--- a/lib/grounding_ui.py
++++ b/lib/grounding_ui.py
+@@ -179,7 +179,7 @@ class GroundingInputForm(Form):
+              ("use_rod_family", u"Использовать BIM-изделие вертикального электрода", bool(self._default("use_rod_family", True))),
+              ("auto_optimize", u"Выполнить предварительный автоподбор конструкции", bool(self._default("auto_optimize", False))),
+              ("create_view", u"Создать чертежный вид «ЭОМ_Расчет ЗУ»", bool(self._default("create_view", True)))],
+-            note=u"Для точной трассы выберите «По направляющим Revit» и одну любую линию цепочки. Для EZETEK 90136 используется облегченная BIM-модель без загрузки тяжелого RFA. Если фиксированная длина включена, используется вся незамкнутая трасса Model Lines; иначе линии задают направление и максимально доступную длину."
++            note=u"Для точной трассы выберите «По направляющим Revit» и одну любую линию цепочки. Если фиксированная длина включена, используется вся незамкнутая трасса Model Lines. Если выключена, линии задают направление и максимально доступную длину, а плагин использует минимально необходимый участок по установленному пределу R."
+         )
+         self._textbox("rod_family_name", u"Семейство вертикального электрода", self._default("rod_family_name", u"EZETEK 90136 — Ø16×1500 мм"))
+ 
+@@ -507,6 +507,7 @@ class GroundingInputForm(Form):
+         values.update(self._panel_data)
+         for key in ("location_profile_id", "location_profile_name", "location_data_source",
+                     "soil_data_quality", "location_warning", "customer_project_fields",
++                    "project_object_type", "allocated_power_kw", "incoming_device_type",
+                     "project_address_source", "project_address_parameter",
+                     "normalized_address", "latitude", "longitude", "qc_geo", "fias_id", "dadata_method",
+                     "online_updated_utc", "online_errors", "data_provenance",
+diff --git a/lib/panel_context.py b/lib/panel_context.py
+index c6604ff..743f576 100644
+--- a/lib/panel_context.py
++++ b/lib/panel_context.py
+@@ -5,7 +5,6 @@ import json
+ import System
+ 
+ from plugin_version import VERSION as PLUGIN_VERSION, BUILD_ID as PLUGIN_BUILD_ID
+-from perf_trace import mark as trace_mark, mark_exception as trace_exception
+ 
+ PANEL_SCHEMA_GUID = "8D7AE748-067D-44F6-B2CC-D61655B34D73"
+ PANEL_SCHEMA_NAME = "EOMGroundingPanelLinkV1"
+@@ -16,35 +15,6 @@ def _text(value):
+     return u"" if value is None else u"{}".format(value)
+ 
+ 
+-def _panel_navigation_trace_detail(stage, data=None, element=None):
+-    """Compact high-level context for a final panel-navigation failure."""
+-    data = data or {}
+-    panel_name = (data.get("gzsh_panel_name") or
+-                  data.get("gzsh_panel_display_name") or
+-                  data.get("gzsh_panel_mark") or u"")
+-    element_id = data.get("gzsh_panel_element_id")
+-    unique_id = data.get("gzsh_panel_unique_id") or u""
+-    if element is not None:
+-        try:
+-            element_id = _id_value(getattr(element, "Id", None))
+-        except Exception:
+-            pass
+-        try:
+-            unique_id = _text(getattr(element, "UniqueId", unique_id))
+-        except Exception:
+-            pass
+-    return u"stage={}; panel={}; element_id={}; unique_id={}".format(
+-        _text(stage), _text(panel_name), _text(element_id), _text(unique_id))
+-
+-
+-def _trace_panel_navigation_failure(stage, data=None, element=None, ex=None):
+-    detail = _panel_navigation_trace_detail(stage, data, element)
+-    if ex is None:
+-        trace_mark("PANEL_NAV_FAIL", detail)
+-    else:
+-        trace_exception("PANEL_NAV_FAIL", ex, detail)
+-
+-
+ def _id_value(element_id):
+     if element_id is None:
+         return None
+@@ -608,7 +578,6 @@ def show_gzsh_panel(uidoc, doc, DB, data):
+     """Select the linked panel, switch only to a safe view, then ZoomToFit."""
+     element = resolve_gzsh_panel(doc, DB, data)
+     if element is None:
+-        _trace_panel_navigation_failure("resolve_panel", data)
+         return False
+ 
+     try:
+@@ -631,19 +600,16 @@ def show_gzsh_panel(uidoc, doc, DB, data):
+         target = _find_panel_view(doc, DB, element)
+ 
+     if target is None:
+-        _trace_panel_navigation_failure("resolve_view", data, element)
+         return True
+ 
+     if active is None or _id_value(target.Id) != _id_value(active.Id):
+         try:
+             uidoc.ActiveView = target
+             uidoc.RefreshActiveView()
+-        except Exception as ex:
+-            _trace_panel_navigation_failure("activate_view", data, element, ex)
++        except Exception:
+             return True
+ 
+-    if not _zoom_to_panel(uidoc, DB, element, target):
+-        _trace_panel_navigation_failure("zoom_to_fit", data, element)
++    _zoom_to_panel(uidoc, DB, element, target)
+     try:
+         uidoc.RefreshActiveView()
+     except Exception:
+diff --git a/lib/plugin_version.py b/lib/plugin_version.py
+index 9c3a657..692436b 100644
+--- a/lib/plugin_version.py
++++ b/lib/plugin_version.py
+@@ -1,8 +1,8 @@
+ # -*- coding: utf-8 -*-
+ from __future__ import print_function
+ 
+-VERSION = u"0.10.42-test-audit-fixes"
+-BUILD_ID = u"20260929-r31"
++VERSION = u"0.10.43-test-project-profile"
++BUILD_ID = u"20260930-r32"
+ 
+ 
+ def display_version():
+diff --git a/lib/project_context.py b/lib/project_context.py
+index 3967220..cb03c1c 100644
+--- a/lib/project_context.py
++++ b/lib/project_context.py
+@@ -12,6 +12,8 @@ from __future__ import division, print_function
+ 
+ import re
+ 
++from project_profile import read_project_profile
++
+ 
+ PROJECT_PARAMETER_NAMES = {
+     "soil_type": [u"Тип грунта", u"Грунт", u"Преобладающий грунт"],
+@@ -427,8 +429,15 @@ def resolve_project_context(doc, DB=None, force_online=False):
+     по адресу -> нейтральные стартовые значения. Поля source_* нужны для отчета.
+     """
+     info = getattr(doc, "ProjectInformation", None) if doc is not None else None
++    project_profile = read_project_profile(doc, DB)
+     address_details = read_project_address_details(doc, DB)
+-    address = address_details.get("value") or u""
++    address = project_profile.get("project_address") or address_details.get("value") or u""
++    if project_profile.get("project_address"):
++        address_details = {
++            "value": address,
++            "source": u"Профиль «Данные проекта» EOM Grounding",
++            "parameter_name": u"EOMGroundingProjectProfile",
++        }
+     profile = infer_from_address(address)
+     customer_values = _customer_project_values(info)
+     values = {
+@@ -459,6 +468,13 @@ def resolve_project_context(doc, DB=None, force_online=False):
+         "online_updated_utc": u"",
+         "online_errors": u"",
+         "data_provenance": u"",
++        "project_object_type": project_profile.get("project_object_type") or u"Дом",
++        "allocated_power_kw": project_profile.get("allocated_power_kw") or u"",
++        "system": project_profile.get("system") or u"TN-C-S",
++        "incoming_device_type": project_profile.get("incoming_device_type") or u"Автоматический выключатель",
++        "incoming_breaker_rating_a": project_profile.get("incoming_breaker_rating_a") or u"",
++        "incoming_breaker_curve": project_profile.get("incoming_breaker_curve") or u"C",
++        "project_profile_source": u"Extensible Storage RVT",
+     }
+ 
+     if profile:
+diff --git a/lib/project_data_ui.py b/lib/project_data_ui.py
+new file mode 100644
+index 0000000..c390963
+--- /dev/null
++++ b/lib/project_data_ui.py
+@@ -0,0 +1,191 @@
++# -*- coding: utf-8 -*-
++from __future__ import division, print_function
++
++import clr
++clr.AddReference("System.Windows.Forms")
++clr.AddReference("System.Drawing")
++
++from System.Drawing import Color, Font, FontStyle, Point, Size
++from System.Windows.Forms import (AnchorStyles, BorderStyle, Button, ComboBox,
++                                  ComboBoxStyle, DialogResult, FlatStyle, Form,
++                                  FormBorderStyle, FormStartPosition, Label,
++                                  MessageBox, Panel, TextBox)
++
++from project_profile import (GROUNDING_SYSTEMS, INCOMING_DEVICE_TYPES,
++                             OBJECT_TYPES, normalize_profile)
++
++
++ACCENT = Color.FromArgb(45, 112, 170)
++PANEL_BG = Color.FromArgb(246, 248, 251)
++FIELD_BG = Color.FromArgb(255, 255, 255)
++
++
++class ProjectDataForm(Form):
++    def __init__(self, defaults=None):
++        self.defaults = normalize_profile(defaults)
++        self.values = None
++        self.Text = u"ЭОМ — Данные проекта"
++        self.ClientSize = Size(760, 560)
++        self.MinimumSize = Size(720, 540)
++        self.FormBorderStyle = FormBorderStyle.Sizable
++        self.StartPosition = FormStartPosition.CenterScreen
++        self.ShowInTaskbar = True
++        self.BackColor = Color.White
++        self._controls = {}
++
++        header = Panel()
++        header.Location = Point(0, 0)
++        header.Size = Size(760, 78)
++        header.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
++        header.BackColor = ACCENT
++        self.Controls.Add(header)
++
++        title = Label()
++        title.Text = u"ДАННЫЕ ПРОЕКТА"
++        title.Location = Point(24, 14)
++        title.Size = Size(690, 28)
++        title.Font = Font(title.Font.FontFamily, 13, FontStyle.Bold)
++        title.ForeColor = Color.White
++        header.Controls.Add(title)
++
++        subtitle = Label()
++        subtitle.Text = u"Единые исходные данные для расчёта ЗУ, модели и документации"
++        subtitle.Location = Point(24, 45)
++        subtitle.Size = Size(690, 22)
++        subtitle.ForeColor = Color.FromArgb(226, 238, 248)
++        header.Controls.Add(subtitle)
++
++        self._card(u"ОБЪЕКТ", 96, 178)
++        self._combo("project_object_type", u"Тип объекта", OBJECT_TYPES,
++                    self.defaults.get("project_object_type"), 118)
++        self._textbox("project_address", u"Адрес объекта",
++                      self.defaults.get("project_address"), 160, multiline=True)
++        self._textbox("allocated_power_kw", u"Выделенная мощность, кВт",
++                      self.defaults.get("allocated_power_kw"), 224)
++
++        self._card(u"ЭЛЕКТРОСНАБЖЕНИЕ", 290, 174)
++        self._combo("system", u"Система заземления", GROUNDING_SYSTEMS,
++                    self.defaults.get("system"), 312)
++        self._combo("incoming_device_type", u"Аппарат на вводе", INCOMING_DEVICE_TYPES,
++                    self.defaults.get("incoming_device_type"), 354)
++        self._textbox("incoming_breaker_rating_a", u"Номинальный ток, А",
++                      self.defaults.get("incoming_breaker_rating_a"), 396, width=150)
++        self._textbox("incoming_breaker_curve", u"Характеристика / ВТХ",
++                      self.defaults.get("incoming_breaker_curve"), 438, width=150)
++
++        note = Label()
++        note.Text = (u"Профиль сохраняется внутри RVT. Адрес также записывается в «Сведения о проекте». "
++                     u"Расчётные команды автоматически используют эти значения как исходные.")
++        note.Location = Point(28, 480)
++        note.Size = Size(704, 34)
++        note.ForeColor = Color.DimGray
++        self.Controls.Add(note)
++
++        save = Button()
++        save.Text = u"Сохранить"
++        save.Location = Point(452, 520)
++        save.Size = Size(140, 32)
++        save.BackColor = ACCENT
++        save.ForeColor = Color.White
++        save.FlatStyle = FlatStyle.Flat
++        save.Click += self._on_save
++        self.Controls.Add(save)
++
++        cancel = Button()
++        cancel.Text = u"Отмена"
++        cancel.Location = Point(604, 520)
++        cancel.Size = Size(120, 32)
++        cancel.Click += self._on_cancel
++        self.Controls.Add(cancel)
++        self.AcceptButton = save
++        self.CancelButton = cancel
++
++    def _card(self, title_text, y, height):
++        card = Panel()
++        card.Location = Point(24, y)
++        card.Size = Size(712, height)
++        card.BackColor = PANEL_BG
++        card.BorderStyle = BorderStyle.FixedSingle
++        self.Controls.Add(card)
++        title = Label()
++        title.Text = title_text
++        title.Location = Point(16, 8)
++        title.Size = Size(670, 22)
++        title.Font = Font(title.Font, FontStyle.Bold)
++        title.ForeColor = ACCENT
++        card.Controls.Add(title)
++
++    def _label(self, text, y):
++        label = Label()
++        label.Text = text
++        label.Location = Point(44, y + 4)
++        label.Size = Size(250, 24)
++        self.Controls.Add(label)
++
++    def _textbox(self, key, label, value, y, width=410, multiline=False):
++        self._label(label, y)
++        control = TextBox()
++        control.Text = u"{}".format(value or u"")
++        control.Location = Point(300, y)
++        control.Size = Size(width, 52 if multiline else 26)
++        control.Multiline = multiline
++        control.BackColor = FIELD_BG
++        self.Controls.Add(control)
++        self._controls[key] = control
++
++    def _combo(self, key, label, items, value, y):
++        self._label(label, y)
++        control = ComboBox()
++        control.DropDownStyle = ComboBoxStyle.DropDownList
++        control.Location = Point(300, y)
++        control.Size = Size(410, 26)
++        for item in items:
++            control.Items.Add(item)
++        control.SelectedIndex = list(items).index(value) if value in items else 0
++        self.Controls.Add(control)
++        self._controls[key] = control
++
++    def _collect(self):
++        values = {}
++        for key, control in self._controls.items():
++            values[key] = u"{}".format(control.Text or u"").strip()
++        return normalize_profile(values)
++
++    def _positive_or_blank(self, value, label):
++        if not value:
++            return True
++        try:
++            if float(value.replace(",", ".")) > 0:
++                return True
++        except Exception:
++            pass
++        MessageBox.Show(u"Поле «{}» должно содержать положительное число.".format(label),
++                        u"ЭОМ — Данные проекта")
++        return False
++
++    def _on_save(self, sender, args):
++        values = self._collect()
++        if not self._positive_or_blank(values.get("allocated_power_kw"), u"Выделенная мощность"):
++            return
++        if not self._positive_or_blank(values.get("incoming_breaker_rating_a"), u"Номинальный ток"):
++            return
++        self.values = values
++        self.DialogResult = DialogResult.OK
++        self.Close()
++
++    def _on_cancel(self, sender, args):
++        self.values = None
++        self.DialogResult = DialogResult.Cancel
++        self.Close()
++
++
++def show_project_data_form(defaults=None):
++    form = ProjectDataForm(defaults)
++    try:
++        result = form.ShowDialog()
++        return dict(form.values or {}) if result == DialogResult.OK else None
++    finally:
++        try:
++            form.Dispose()
++        except Exception:
++            pass
+diff --git a/lib/project_profile.py b/lib/project_profile.py
+new file mode 100644
+index 0000000..a15ed64
+--- /dev/null
++++ b/lib/project_profile.py
+@@ -0,0 +1,152 @@
++# -*- coding: utf-8 -*-
++from __future__ import print_function
++
++import json
++
++
++SCHEMA_GUID = "28f13246-a9b2-4e84-933b-4e5e11ca8d61"
++SCHEMA_NAME = "EOMGroundingProjectProfile"
++FIELD_NAME = "ProfileJson"
++
++OBJECT_TYPES = (u"Дом", u"Квартира")
++GROUNDING_SYSTEMS = (u"TN-C-S", u"TN-S", u"TT")
++INCOMING_DEVICE_TYPES = (
++    u"Автоматический выключатель",
++    u"Ограничитель мощности",
++    u"Предохранитель",
++    u"Другое",
++)
++
++PROFILE_KEYS = (
++    "project_object_type",
++    "project_address",
++    "allocated_power_kw",
++    "system",
++    "incoming_device_type",
++    "incoming_breaker_rating_a",
++    "incoming_breaker_curve",
++)
++
++
++def _text(value):
++    return u"" if value is None else u"{}".format(value).strip()
++
++
++def empty_profile():
++    return {
++        "project_object_type": OBJECT_TYPES[0],
++        "project_address": u"",
++        "allocated_power_kw": u"",
++        "system": GROUNDING_SYSTEMS[0],
++        "incoming_device_type": INCOMING_DEVICE_TYPES[0],
++        "incoming_breaker_rating_a": u"",
++        "incoming_breaker_curve": u"C",
++    }
++
++
++def normalize_profile(data):
++    source = data or {}
++    result = empty_profile()
++    for key in PROFILE_KEYS:
++        if key in source and source.get(key) is not None:
++            result[key] = _text(source.get(key))
++    if result["project_object_type"] not in OBJECT_TYPES:
++        result["project_object_type"] = OBJECT_TYPES[0]
++    if result["system"] not in GROUNDING_SYSTEMS:
++        result["system"] = GROUNDING_SYSTEMS[0]
++    if result["incoming_device_type"] not in INCOMING_DEVICE_TYPES:
++        result["incoming_device_type"] = INCOMING_DEVICE_TYPES[-1]
++    if not result["incoming_breaker_curve"]:
++        result["incoming_breaker_curve"] = u"C"
++    return result
++
++
++def profile_to_json(data):
++    return json.dumps(normalize_profile(data), ensure_ascii=False, sort_keys=True)
++
++
++def profile_from_json(payload):
++    if not payload:
++        return empty_profile()
++    try:
++        parsed = json.loads(payload)
++    except Exception:
++        return empty_profile()
++    return normalize_profile(parsed if isinstance(parsed, dict) else {})
++
++
++def _schema(DB, create=False):
++    from System import Guid, String
++
++    schema = DB.ExtensibleStorage.Schema.Lookup(Guid(SCHEMA_GUID))
++    if schema is not None or not create:
++        return schema
++    builder = DB.ExtensibleStorage.SchemaBuilder(Guid(SCHEMA_GUID))
++    builder.SetSchemaName(SCHEMA_NAME)
++    builder.SetReadAccessLevel(DB.ExtensibleStorage.AccessLevel.Public)
++    builder.SetWriteAccessLevel(DB.ExtensibleStorage.AccessLevel.Public)
++    builder.AddSimpleField(FIELD_NAME, String)
++    return builder.Finish()
++
++
++def read_project_profile(doc, DB=None):
++    if doc is None:
++        return empty_profile()
++    # Lightweight hook used only by offline tests and non-Revit callers.
++    if DB is None:
++        return normalize_profile(getattr(doc, "_eom_grounding_project_profile", {}))
++    try:
++        from System import String
++
++        schema = _schema(DB, create=False)
++        info = getattr(doc, "ProjectInformation", None)
++        if schema is None or info is None:
++            return empty_profile()
++        entity = info.GetEntity(schema)
++        if entity is None or not entity.IsValid():
++            return empty_profile()
++        field = schema.GetField(FIELD_NAME)
++        return profile_from_json(entity.Get[String](field))
++    except Exception:
++        return empty_profile()
++
++
++def _write_project_address(info, DB, address):
++    if info is None or not address:
++        return
++    try:
++        parameter = info.get_Parameter(DB.BuiltInParameter.PROJECT_ADDRESS)
++        if parameter is not None and not parameter.IsReadOnly:
++            parameter.Set(address)
++            return
++    except Exception:
++        pass
++    try:
++        info.Address = address
++    except Exception:
++        pass
++
++
++def write_project_profile(doc, DB, data):
++    if doc is None or DB is None:
++        raise ValueError(u"Нет открытого документа Revit.")
++    from System import String
++
++    profile = normalize_profile(data)
++    info = getattr(doc, "ProjectInformation", None)
++    if info is None:
++        raise ValueError(u"В проекте отсутствуют сведения о проекте.")
++
++    transaction = DB.Transaction(doc, u"ЭОМ: данные проекта")
++    transaction.Start()
++    try:
++        schema = _schema(DB, create=True)
++        entity = DB.ExtensibleStorage.Entity(schema)
++        entity.Set[String](schema.GetField(FIELD_NAME), String(profile_to_json(profile)))
++        info.SetEntity(entity)
++        _write_project_address(info, DB, profile.get("project_address"))
++        transaction.Commit()
++    except Exception:
++        transaction.RollBack()
++        raise
++    return profile
+diff --git a/lib/revit_grounding_model.py b/lib/revit_grounding_model.py
+index dd04538..feee270 100644
+--- a/lib/revit_grounding_model.py
++++ b/lib/revit_grounding_model.py
+@@ -1644,72 +1644,6 @@ def _create_ezetek_90136_modules(doc, DB, symbol, ground_point, data, group_id,
+     }
+     return created, assembly_info
+ 
+-def _create_ezetek_90136_proxy_modules(doc, DB, ground_point, data, group_id, idx, close_loop, warnings):
+-    """Create a lightweight EZETEK 90136 assembly without loading manufacturer RFA.
+-
+-    The normal placement path must stay predictable in Revit. Manufacturer-family
+-    loading, activation, regeneration and nested geometry inspection are therefore
+-    deliberately excluded here. Each 1.50 m module is represented by a lightweight
+-    DirectShape cylinder with the real article/module metadata; 90227/90326/90540
+-    accessory proxies are created by the existing helpers.
+-    """
+-    total_length = number_value(data.get("vertical_length"))
+-    top_depth = number_value(data.get("vertical_top_depth"))
+-    diameter = number_value(data.get("vertical_diameter_mm"), ROD_EZETEK_90136_DIAMETER_MM)
+-    modules_float = total_length / ROD_EZETEK_90136_MODULE_M
+-    module_count = int(round(modules_float))
+-    if module_count < 1 or abs(total_length - module_count * ROD_EZETEK_90136_MODULE_M) > 0.002:
+-        raise ValueError(u"EZETEK 90136 имеет фиксированную длину секции 1,50 м; общая длина должна быть кратна 1,50 м.")
+-    if abs(diameter - ROD_EZETEK_90136_DIAMETER_MM) > 0.2:
+-        raise ValueError(u"EZETEK 90136 имеет Ø16 мм, а в расчете задано {:.1f} мм. Измените диаметр на 16 мм либо отключите BIM-изделие 90136.".format(diameter))
+-
+-    created = []
+-    first_top_z = ground_point.Z - m_to_ft(top_depth)
+-    previous_bottom_z = first_top_z
+-    joint_zs = []
+-
+-    for module_idx in range(module_count):
+-        module_top_z = first_top_z - m_to_ft(ROD_EZETEK_90136_MODULE_M * module_idx)
+-        module_bottom_z = module_top_z - m_to_ft(ROD_EZETEK_90136_MODULE_M)
+-        if module_idx > 0:
+-            joint_zs.append(module_top_z)
+-
+-        solid = _cylinder_solid(
+-            DB, ground_point.X, ground_point.Y, module_top_z,
+-            ROD_EZETEK_90136_MODULE_M, ROD_EZETEK_90136_DIAMETER_MM)
+-
+-        role = u"ROD" if module_idx == 0 else u"ROD_MODULE"
+-        node_id = "VE-{}".format(idx + 1)
+-        comments = (u"EOM_GROUNDING;GROUP={};ROLE={};INDEX={};MODULE={};PARENT_INDEX={};"
+-                    u"NODE_TYPE=VERTICAL_ELECTRODE;NODE_ID={};MODE=EZETEK90136_PROXY;PRODUCT=90136;"
+-                    u"L_M={:.3f};MODULE_L_M=1.500;D_MM=16.0;TOP_M={:.3f}"
+-                    .format(group_id, role, idx + 1, module_idx + 1, idx + 1,
+-                            node_id, total_length, top_depth))
+-        mark = u"ЗУ-В{}".format(idx + 1) if module_idx == 0 else u"ЗУ-В{}-М{}".format(idx + 1, module_idx + 1)
+-        ds = _new_direct_shape(
+-            doc, DB, solid, "{}:ROD:{}:MODULE:{}".format(group_id, idx + 1, module_idx + 1),
+-            comments, mark, data=data, group_id=group_id, close_loop=close_loop,
+-            preferred_bic=DB.BuiltInCategory.OST_ElectricalEquipment)
+-        created.append(ds)
+-        previous_bottom_z = module_bottom_z
+-
+-    created.extend(_create_ezetek_90136_accessories(
+-        doc, DB, ground_point, first_top_z, joint_zs, previous_bottom_z,
+-        data, group_id, idx, close_loop))
+-
+-    warnings.append(
+-        u"EZETEK 90136: использована облегченная BIM-модель без загрузки RFA; "
+-        u"секции 90136, муфты 90227, наконечник 90326 и зажим 90540 сохраняют артикулы и метаданные.")
+-
+-    assembly_info = {
+-        "axis_x": ground_point.X, "axis_y": ground_point.Y, "ground_z": ground_point.Z,
+-        "top_z": first_top_z, "bottom_z": previous_bottom_z, "joint_zs": list(joint_zs),
+-        "picked_x": ground_point.X, "picked_y": ground_point.Y,
+-        "residual_xy_m": 0.0,
+-    }
+-    return created, assembly_info
+-
+-
+ def _create_rod_family_instance(doc, DB, symbol, ground_point, data, group_id, idx, close_loop):
+     if not symbol.IsActive:
+         symbol.Activate()
+@@ -1756,15 +1690,14 @@ def _create_rod_element(doc, DB, data, point, group_id, idx, close_loop, warning
+     family_name = data.get("rod_family_name") or ROD_FAMILY_DEFAULT
+     if use_family:
+         if _is_ezetek_90136_request(family_name):
+-            try:
+-                trace_mark("EZETEK_PROXY_START", str(idx + 1))
+-                rod_elements, assembly_info = _create_ezetek_90136_proxy_modules(
+-                    doc, DB, point, data, group_id, idx, close_loop, warnings)
+-                trace_mark("EZETEK_PROXY_END", str(idx + 1))
+-                return rod_elements, "EZETEK90136", assembly_info
+-            except Exception as ex:
+-                trace_exception("ROD_PROXY_FALLBACK", ex, u"EZETEK 90136")
+-                warnings.append(u"EZETEK 90136: {} Использован упрощенный единый DirectShape.".format(exception_text(ex)))
++            symbol = _ensure_ezetek_90136_symbol(doc, DB, warnings)
++            if symbol is not None:
++                try:
++                    rod_elements, assembly_info = _create_ezetek_90136_modules(doc, DB, symbol, point, data, group_id, idx, close_loop, warnings)
++                    return rod_elements, "EZETEK90136", assembly_info
++                except Exception as ex:
++                    trace_exception("ROD_FAMILY_FALLBACK", ex, u"EZETEK 90136")
++                    warnings.append(u"EZETEK 90136: {} Использован DirectShape.".format(exception_text(ex)))
+         else:
+             symbol = _family_symbol_by_name(doc, DB, family_name)
+             if symbol is not None:
+diff --git a/lib/revit_output.py b/lib/revit_output.py
+index 15300a6..9a176ec 100644
+--- a/lib/revit_output.py
++++ b/lib/revit_output.py
+@@ -2,7 +2,7 @@
+ from __future__ import division, print_function
+ 
+ import math
+-from perf_trace import mark as trace_mark, mark_exception as trace_exception
++from perf_trace import mark as trace_mark
+ 
+ 
+ def _drafting_type(doc, DB):
+@@ -494,25 +494,14 @@ def _clear_generated_view(doc, view, DB):
+                 batch.Add(eid)
+             doc.Delete(batch)
+             return
+-        except Exception as ex:
+-            trace_exception(
+-                "VIEW_CLEANUP_BATCH_FAIL", ex,
+-                u"view_id={}; elements={}".format(getattr(view, "Id", u""), len(ids)))
++        except Exception:
++            pass
+     # Fallback for unusual API/runtime combinations.
+-    failed = 0
+-    last_error = None
+     for eid in ids:
+         try:
+             doc.Delete(eid)
+-        except Exception as ex:
+-            failed += 1
+-            last_error = ex
+-
+-    if failed:
+-        trace_exception(
+-            "VIEW_CLEANUP_FALLBACK_FAIL", last_error,
+-            u"view_id={}; failed={}; total={}".format(
+-                getattr(view, "Id", u""), failed, len(ids)))
++        except Exception:
++            pass
+ 
+ def _write_content(doc, view, DB, report_text, report_tables=None):
+     if report_tables:
+diff --git a/lib/single_rod_ui.py b/lib/single_rod_ui.py
+index 90fb5d0..7272e64 100644
+--- a/lib/single_rod_ui.py
++++ b/lib/single_rod_ui.py
+@@ -174,7 +174,7 @@ class SingleRodForm(Form):
+             [("create_model", u"Создать штырь в 3D-модели Revit", True),
+              ("use_rod_family", u"Использовать BIM-изделие вертикального электрода", bool(self.defaults.get("use_rod_family", True))),
+              ("create_view", u"Создать расчетный вид", True)],
+-            note=u"Для EZETEK 90136 используется облегченная BIM-модель без загрузки тяжелого RFA. Артикул 90136, Ø16 мм и секции 1,50 м сохраняются в метаданных."
++            note=u"Для EZETEK 90136 семейство загружается из пакета автоматически. Изделие имеет фиксированные Ø16 мм и длину секции 1,50 м."
+         )
+         self._textbox("rod_family_name", u"Семейство вертикального электрода", self._default("rod_family_name", u"EZETEK 90136 — Ø16×1500 мм"))
+ 
+@@ -270,7 +270,8 @@ class SingleRodForm(Form):
+         add_group(u"ПАРАМЕТРЫ СЕТИ", y)
+         y += 28
+         add_label(u"Система *", lx1, y, lw1)
+-        add_cb("system", [SYSTEM_TNCS, SYSTEM_TNS, SYSTEM_TT], SYSTEM_TNCS, ix1, y, iw1)
++        add_cb("system", [SYSTEM_TNCS, SYSTEM_TNS, SYSTEM_TT],
++               self._default("system", SYSTEM_TNCS), ix1, y, iw1)
+         add_label(u"Назначение ЗУ *", lx2, y, lw2)
+         add_cb("purpose", [PURPOSE_PROTECTIVE, PURPOSE_REPEATED_PEN, PURPOSE_TNCS_INPUT, PURPOSE_SOURCE_NEUTRAL,
+                            PURPOSE_GENERATOR_NEUTRAL, PURPOSE_COMBINED_LPS, PURPOSE_FUNCTIONAL],
+@@ -583,6 +584,7 @@ class SingleRodForm(Form):
+         values.update(self._panel_data)
+         for key in ("location_profile_id", "location_profile_name", "location_data_source",
+                     "soil_data_quality", "location_warning", "customer_project_fields",
++                    "project_object_type", "allocated_power_kw", "incoming_device_type",
+                     "project_address_source", "project_address_parameter",
+                     "normalized_address", "latitude", "longitude", "qc_geo", "fias_id", "dadata_method",
+                     "online_updated_utc", "online_errors", "data_provenance",
+-- 
+2.55.0.windows.3
+
