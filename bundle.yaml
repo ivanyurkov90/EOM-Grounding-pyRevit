@@ -1,0 +1,3 @@
+name: EOM Grounding
+author: OpenAI + проектировщик ЭОМ
+description: Расчет и оформление заземляющих устройств для Revit/pyRevit с адресным онлайн-контекстом.

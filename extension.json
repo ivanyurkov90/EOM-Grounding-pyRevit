@@ -1,0 +1,13 @@
+{
+  "builtin": "False",
+  "type": "extension",
+  "rocket_mode_compatible": "False",
+  "name": "EOM Grounding",
+  "description": "Расчет, BIM-моделирование и документация заземляющих устройств для Autodesk Revit.",
+  "author": "ivanyurkov90",
+  "author_profile": "https://github.com/ivanyurkov90",
+  "url": "https://github.com/ivanyurkov90/EOM-Grounding-pyRevit.git",
+  "website": "https://github.com/ivanyurkov90/EOM-Grounding",
+  "image": "",
+  "dependencies": []
+}
