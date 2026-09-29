@@ -1,0 +1,4 @@
+title: "Диагностика"
+tooltip: "Проверка загрузки pyRevit-расширения и доступа к Revit API."
+author: "ЭОМ / OpenAI"
+min_revit_version: 2023
