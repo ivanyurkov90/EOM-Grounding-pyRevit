@@ -22,7 +22,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git am .github/workflows/0001-Add-project-profile-and-reorganize-ribbon.patch
+          git apply .github/workflows/0001-Add-project-profile-and-reorganize-ribbon.patch
+          git add -A
+          git commit -m "Add project profile and reorganize ribbon"
 
       - name: Validate extension structure
         run: |
