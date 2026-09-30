@@ -1,1 +1,7 @@
 title: "ЭОМ"
+layout:
+  - Project
+  - Calculation
+  - Model
+  - Documentation
+  - Service

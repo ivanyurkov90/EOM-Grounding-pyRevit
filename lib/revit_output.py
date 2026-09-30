@@ -2,7 +2,7 @@
 from __future__ import division, print_function
 
 import math
-from perf_trace import mark as trace_mark, mark_exception as trace_exception
+from perf_trace import mark as trace_mark
 
 
 def _drafting_type(doc, DB):
@@ -494,25 +494,14 @@ def _clear_generated_view(doc, view, DB):
                 batch.Add(eid)
             doc.Delete(batch)
             return
-        except Exception as ex:
-            trace_exception(
-                "VIEW_CLEANUP_BATCH_FAIL", ex,
-                u"view_id={}; elements={}".format(getattr(view, "Id", u""), len(ids)))
+        except Exception:
+            pass
     # Fallback for unusual API/runtime combinations.
-    failed = 0
-    last_error = None
     for eid in ids:
         try:
             doc.Delete(eid)
-        except Exception as ex:
-            failed += 1
-            last_error = ex
-
-    if failed:
-        trace_exception(
-            "VIEW_CLEANUP_FALLBACK_FAIL", last_error,
-            u"view_id={}; failed={}; total={}".format(
-                getattr(view, "Id", u""), failed, len(ids)))
+        except Exception:
+            pass
 
 def _write_content(doc, view, DB, report_text, report_tables=None):
     if report_tables:

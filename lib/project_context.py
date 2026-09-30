@@ -12,6 +12,8 @@ from __future__ import division, print_function
 
 import re
 
+from project_profile import read_project_profile
+
 
 PROJECT_PARAMETER_NAMES = {
     "soil_type": [u"Тип грунта", u"Грунт", u"Преобладающий грунт"],
@@ -427,8 +429,15 @@ def resolve_project_context(doc, DB=None, force_online=False):
     по адресу -> нейтральные стартовые значения. Поля source_* нужны для отчета.
     """
     info = getattr(doc, "ProjectInformation", None) if doc is not None else None
+    project_profile = read_project_profile(doc, DB)
     address_details = read_project_address_details(doc, DB)
-    address = address_details.get("value") or u""
+    address = project_profile.get("project_address") or address_details.get("value") or u""
+    if project_profile.get("project_address"):
+        address_details = {
+            "value": address,
+            "source": u"Профиль «Данные проекта» EOM Grounding",
+            "parameter_name": u"EOMGroundingProjectProfile",
+        }
     profile = infer_from_address(address)
     customer_values = _customer_project_values(info)
     values = {
@@ -459,6 +468,13 @@ def resolve_project_context(doc, DB=None, force_online=False):
         "online_updated_utc": u"",
         "online_errors": u"",
         "data_provenance": u"",
+        "project_object_type": project_profile.get("project_object_type") or u"Дом",
+        "allocated_power_kw": project_profile.get("allocated_power_kw") or u"",
+        "system": project_profile.get("system") or u"TN-C-S",
+        "incoming_device_type": project_profile.get("incoming_device_type") or u"Автоматический выключатель",
+        "incoming_breaker_rating_a": project_profile.get("incoming_breaker_rating_a") or u"",
+        "incoming_breaker_curve": project_profile.get("incoming_breaker_curve") or u"C",
+        "project_profile_source": u"Extensible Storage RVT",
     }
 
     if profile:

@@ -179,7 +179,7 @@ class GroundingInputForm(Form):
              ("use_rod_family", u"Использовать BIM-изделие вертикального электрода", bool(self._default("use_rod_family", True))),
              ("auto_optimize", u"Выполнить предварительный автоподбор конструкции", bool(self._default("auto_optimize", False))),
              ("create_view", u"Создать чертежный вид «ЭОМ_Расчет ЗУ»", bool(self._default("create_view", True)))],
-            note=u"Для точной трассы выберите «По направляющим Revit» и одну любую линию цепочки. Для EZETEK 90136 используется облегченная BIM-модель без загрузки тяжелого RFA. Если фиксированная длина включена, используется вся незамкнутая трасса Model Lines; иначе линии задают направление и максимально доступную длину."
+            note=u"Для точной трассы выберите «По направляющим Revit» и одну любую линию цепочки. Если фиксированная длина включена, используется вся незамкнутая трасса Model Lines. Если выключена, линии задают направление и максимально доступную длину, а плагин использует минимально необходимый участок по установленному пределу R."
         )
         self._textbox("rod_family_name", u"Семейство вертикального электрода", self._default("rod_family_name", u"EZETEK 90136 — Ø16×1500 мм"))
 
@@ -507,6 +507,7 @@ class GroundingInputForm(Form):
         values.update(self._panel_data)
         for key in ("location_profile_id", "location_profile_name", "location_data_source",
                     "soil_data_quality", "location_warning", "customer_project_fields",
+                    "project_object_type", "allocated_power_kw", "incoming_device_type",
                     "project_address_source", "project_address_parameter",
                     "normalized_address", "latitude", "longitude", "qc_geo", "fias_id", "dadata_method",
                     "online_updated_utc", "online_errors", "data_provenance",

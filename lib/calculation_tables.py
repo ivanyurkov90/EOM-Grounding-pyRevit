@@ -138,12 +138,19 @@ def _input_rows(data, result, single=False):
     else:
         rows.append(_row(u"Панель с ГЗШ", u"ГЗШ", u"Не выбрана", u"Требуется привязка к панели Revit"))
     rows.extend([
+        _row(u"Тип объекта", u"—", data.get("project_object_type", u""), u"Профиль проекта"),
         _row(u"Система заземления", u"—", data.get("system", u""), u""),
         _row(u"Назначение ЗУ", u"—", data.get("purpose", u""), u""),
         _row(u"Тип ввода", u"—", data.get("supply_type", u""), u""),
     ])
     if data.get("project_address"):
         rows.append(_row(u"Адрес объекта", u"—", data.get("project_address"), data.get("location_data_source", u"")))
+    if data.get("allocated_power_kw"):
+        rows.append(_row(u"Выделенная мощность", u"Pвыд",
+                         u"{} кВт".format(data.get("allocated_power_kw")), u"Профиль проекта"))
+    if data.get("incoming_device_type"):
+        rows.append(_row(u"Аппарат на вводе", u"—", data.get("incoming_device_type"),
+                         u"Ограничивает вводную мощность"))
     if data.get("soil_type"):
         rows.append(_row(u"Тип грунта", u"—", data.get("soil_type"), u""))
     rows.extend([

@@ -1644,72 +1644,6 @@ def _create_ezetek_90136_modules(doc, DB, symbol, ground_point, data, group_id, 
     }
     return created, assembly_info
 
-def _create_ezetek_90136_proxy_modules(doc, DB, ground_point, data, group_id, idx, close_loop, warnings):
-    """Create a lightweight EZETEK 90136 assembly without loading manufacturer RFA.
-
-    The normal placement path must stay predictable in Revit. Manufacturer-family
-    loading, activation, regeneration and nested geometry inspection are therefore
-    deliberately excluded here. Each 1.50 m module is represented by a lightweight
-    DirectShape cylinder with the real article/module metadata; 90227/90326/90540
-    accessory proxies are created by the existing helpers.
-    """
-    total_length = number_value(data.get("vertical_length"))
-    top_depth = number_value(data.get("vertical_top_depth"))
-    diameter = number_value(data.get("vertical_diameter_mm"), ROD_EZETEK_90136_DIAMETER_MM)
-    modules_float = total_length / ROD_EZETEK_90136_MODULE_M
-    module_count = int(round(modules_float))
-    if module_count < 1 or abs(total_length - module_count * ROD_EZETEK_90136_MODULE_M) > 0.002:
-        raise ValueError(u"EZETEK 90136 имеет фиксированную длину секции 1,50 м; общая длина должна быть кратна 1,50 м.")
-    if abs(diameter - ROD_EZETEK_90136_DIAMETER_MM) > 0.2:
-        raise ValueError(u"EZETEK 90136 имеет Ø16 мм, а в расчете задано {:.1f} мм. Измените диаметр на 16 мм либо отключите BIM-изделие 90136.".format(diameter))
-
-    created = []
-    first_top_z = ground_point.Z - m_to_ft(top_depth)
-    previous_bottom_z = first_top_z
-    joint_zs = []
-
-    for module_idx in range(module_count):
-        module_top_z = first_top_z - m_to_ft(ROD_EZETEK_90136_MODULE_M * module_idx)
-        module_bottom_z = module_top_z - m_to_ft(ROD_EZETEK_90136_MODULE_M)
-        if module_idx > 0:
-            joint_zs.append(module_top_z)
-
-        solid = _cylinder_solid(
-            DB, ground_point.X, ground_point.Y, module_top_z,
-            ROD_EZETEK_90136_MODULE_M, ROD_EZETEK_90136_DIAMETER_MM)
-
-        role = u"ROD" if module_idx == 0 else u"ROD_MODULE"
-        node_id = "VE-{}".format(idx + 1)
-        comments = (u"EOM_GROUNDING;GROUP={};ROLE={};INDEX={};MODULE={};PARENT_INDEX={};"
-                    u"NODE_TYPE=VERTICAL_ELECTRODE;NODE_ID={};MODE=EZETEK90136_PROXY;PRODUCT=90136;"
-                    u"L_M={:.3f};MODULE_L_M=1.500;D_MM=16.0;TOP_M={:.3f}"
-                    .format(group_id, role, idx + 1, module_idx + 1, idx + 1,
-                            node_id, total_length, top_depth))
-        mark = u"ЗУ-В{}".format(idx + 1) if module_idx == 0 else u"ЗУ-В{}-М{}".format(idx + 1, module_idx + 1)
-        ds = _new_direct_shape(
-            doc, DB, solid, "{}:ROD:{}:MODULE:{}".format(group_id, idx + 1, module_idx + 1),
-            comments, mark, data=data, group_id=group_id, close_loop=close_loop,
-            preferred_bic=DB.BuiltInCategory.OST_ElectricalEquipment)
-        created.append(ds)
-        previous_bottom_z = module_bottom_z
-
-    created.extend(_create_ezetek_90136_accessories(
-        doc, DB, ground_point, first_top_z, joint_zs, previous_bottom_z,
-        data, group_id, idx, close_loop))
-
-    warnings.append(
-        u"EZETEK 90136: использована облегченная BIM-модель без загрузки RFA; "
-        u"секции 90136, муфты 90227, наконечник 90326 и зажим 90540 сохраняют артикулы и метаданные.")
-
-    assembly_info = {
-        "axis_x": ground_point.X, "axis_y": ground_point.Y, "ground_z": ground_point.Z,
-        "top_z": first_top_z, "bottom_z": previous_bottom_z, "joint_zs": list(joint_zs),
-        "picked_x": ground_point.X, "picked_y": ground_point.Y,
-        "residual_xy_m": 0.0,
-    }
-    return created, assembly_info
-
-
 def _create_rod_family_instance(doc, DB, symbol, ground_point, data, group_id, idx, close_loop):
     if not symbol.IsActive:
         symbol.Activate()
@@ -1756,15 +1690,14 @@ def _create_rod_element(doc, DB, data, point, group_id, idx, close_loop, warning
     family_name = data.get("rod_family_name") or ROD_FAMILY_DEFAULT
     if use_family:
         if _is_ezetek_90136_request(family_name):
-            try:
-                trace_mark("EZETEK_PROXY_START", str(idx + 1))
-                rod_elements, assembly_info = _create_ezetek_90136_proxy_modules(
-                    doc, DB, point, data, group_id, idx, close_loop, warnings)
-                trace_mark("EZETEK_PROXY_END", str(idx + 1))
-                return rod_elements, "EZETEK90136", assembly_info
-            except Exception as ex:
-                trace_exception("ROD_PROXY_FALLBACK", ex, u"EZETEK 90136")
-                warnings.append(u"EZETEK 90136: {} Использован упрощенный единый DirectShape.".format(exception_text(ex)))
+            symbol = _ensure_ezetek_90136_symbol(doc, DB, warnings)
+            if symbol is not None:
+                try:
+                    rod_elements, assembly_info = _create_ezetek_90136_modules(doc, DB, symbol, point, data, group_id, idx, close_loop, warnings)
+                    return rod_elements, "EZETEK90136", assembly_info
+                except Exception as ex:
+                    trace_exception("ROD_FAMILY_FALLBACK", ex, u"EZETEK 90136")
+                    warnings.append(u"EZETEK 90136: {} Использован DirectShape.".format(exception_text(ex)))
         else:
             symbol = _family_symbol_by_name(doc, DB, family_name)
             if symbol is not None:

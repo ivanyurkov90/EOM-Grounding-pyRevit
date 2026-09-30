@@ -5,7 +5,6 @@ import json
 import System
 
 from plugin_version import VERSION as PLUGIN_VERSION, BUILD_ID as PLUGIN_BUILD_ID
-from perf_trace import mark as trace_mark, mark_exception as trace_exception
 
 PANEL_SCHEMA_GUID = "8D7AE748-067D-44F6-B2CC-D61655B34D73"
 PANEL_SCHEMA_NAME = "EOMGroundingPanelLinkV1"
@@ -14,35 +13,6 @@ PANEL_SCHEMA_FIELD = "DataJson"
 
 def _text(value):
     return u"" if value is None else u"{}".format(value)
-
-
-def _panel_navigation_trace_detail(stage, data=None, element=None):
-    """Compact high-level context for a final panel-navigation failure."""
-    data = data or {}
-    panel_name = (data.get("gzsh_panel_name") or
-                  data.get("gzsh_panel_display_name") or
-                  data.get("gzsh_panel_mark") or u"")
-    element_id = data.get("gzsh_panel_element_id")
-    unique_id = data.get("gzsh_panel_unique_id") or u""
-    if element is not None:
-        try:
-            element_id = _id_value(getattr(element, "Id", None))
-        except Exception:
-            pass
-        try:
-            unique_id = _text(getattr(element, "UniqueId", unique_id))
-        except Exception:
-            pass
-    return u"stage={}; panel={}; element_id={}; unique_id={}".format(
-        _text(stage), _text(panel_name), _text(element_id), _text(unique_id))
-
-
-def _trace_panel_navigation_failure(stage, data=None, element=None, ex=None):
-    detail = _panel_navigation_trace_detail(stage, data, element)
-    if ex is None:
-        trace_mark("PANEL_NAV_FAIL", detail)
-    else:
-        trace_exception("PANEL_NAV_FAIL", ex, detail)
 
 
 def _id_value(element_id):
@@ -608,7 +578,6 @@ def show_gzsh_panel(uidoc, doc, DB, data):
     """Select the linked panel, switch only to a safe view, then ZoomToFit."""
     element = resolve_gzsh_panel(doc, DB, data)
     if element is None:
-        _trace_panel_navigation_failure("resolve_panel", data)
         return False
 
     try:
@@ -631,19 +600,16 @@ def show_gzsh_panel(uidoc, doc, DB, data):
         target = _find_panel_view(doc, DB, element)
 
     if target is None:
-        _trace_panel_navigation_failure("resolve_view", data, element)
         return True
 
     if active is None or _id_value(target.Id) != _id_value(active.Id):
         try:
             uidoc.ActiveView = target
             uidoc.RefreshActiveView()
-        except Exception as ex:
-            _trace_panel_navigation_failure("activate_view", data, element, ex)
+        except Exception:
             return True
 
-    if not _zoom_to_panel(uidoc, DB, element, target):
-        _trace_panel_navigation_failure("zoom_to_fit", data, element)
+    _zoom_to_panel(uidoc, DB, element, target)
     try:
         uidoc.RefreshActiveView()
     except Exception:

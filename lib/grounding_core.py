@@ -1111,10 +1111,16 @@ def format_report(data, result, title=None):
     else:
         lines.append(u"Панель с ГЗШ: не выбрана")
     lines.append(u"Система: {}".format(data.get("system", "")))
+    if data.get("project_object_type"):
+        lines.append(u"Тип объекта: {}".format(data.get("project_object_type")))
     lines.append(u"Назначение: {}".format(data.get("purpose", "")))
     lines.append(u"Ввод: {}".format(data.get("supply_type", "")))
     if data.get("project_address"):
         lines.append(u"Адрес проекта: {}".format(data.get("project_address")))
+    if data.get("allocated_power_kw"):
+        lines.append(u"Выделенная мощность: {} кВт".format(data.get("allocated_power_kw")))
+    if data.get("incoming_device_type"):
+        lines.append(u"Аппарат на вводе: {}".format(data.get("incoming_device_type")))
     if data.get("normalized_address") and data.get("normalized_address") != data.get("project_address"):
         lines.append(u"Нормализованный адрес: {}".format(data.get("normalized_address")))
     if data.get("latitude") is not None and data.get("longitude") is not None:
@@ -1494,10 +1500,16 @@ def format_single_rod_report(data, result):
     else:
         lines.append(u"Панель с ГЗШ: не выбрана")
     lines.append(u"Система: {}".format(data.get("system", "")))
+    if data.get("project_object_type"):
+        lines.append(u"Тип объекта: {}".format(data.get("project_object_type")))
     lines.append(u"Назначение: {}".format(data.get("purpose", "")))
     lines.append(u"Ввод: {}".format(data.get("supply_type", "")))
     if data.get("project_address"):
         lines.append(u"Адрес проекта: {}".format(data.get("project_address")))
+    if data.get("allocated_power_kw"):
+        lines.append(u"Выделенная мощность: {} кВт".format(data.get("allocated_power_kw")))
+    if data.get("incoming_device_type"):
+        lines.append(u"Аппарат на вводе: {}".format(data.get("incoming_device_type")))
     if data.get("normalized_address") and data.get("normalized_address") != data.get("project_address"):
         lines.append(u"Нормализованный адрес: {}".format(data.get("normalized_address")))
     if data.get("latitude") is not None and data.get("longitude") is not None:

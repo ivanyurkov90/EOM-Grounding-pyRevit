@@ -174,7 +174,7 @@ class SingleRodForm(Form):
             [("create_model", u"Создать штырь в 3D-модели Revit", True),
              ("use_rod_family", u"Использовать BIM-изделие вертикального электрода", bool(self.defaults.get("use_rod_family", True))),
              ("create_view", u"Создать расчетный вид", True)],
-            note=u"Для EZETEK 90136 используется облегченная BIM-модель без загрузки тяжелого RFA. Артикул 90136, Ø16 мм и секции 1,50 м сохраняются в метаданных."
+            note=u"Для EZETEK 90136 семейство загружается из пакета автоматически. Изделие имеет фиксированные Ø16 мм и длину секции 1,50 м."
         )
         self._textbox("rod_family_name", u"Семейство вертикального электрода", self._default("rod_family_name", u"EZETEK 90136 — Ø16×1500 мм"))
 
@@ -270,7 +270,8 @@ class SingleRodForm(Form):
         add_group(u"ПАРАМЕТРЫ СЕТИ", y)
         y += 28
         add_label(u"Система *", lx1, y, lw1)
-        add_cb("system", [SYSTEM_TNCS, SYSTEM_TNS, SYSTEM_TT], SYSTEM_TNCS, ix1, y, iw1)
+        add_cb("system", [SYSTEM_TNCS, SYSTEM_TNS, SYSTEM_TT],
+               self._default("system", SYSTEM_TNCS), ix1, y, iw1)
         add_label(u"Назначение ЗУ *", lx2, y, lw2)
         add_cb("purpose", [PURPOSE_PROTECTIVE, PURPOSE_REPEATED_PEN, PURPOSE_TNCS_INPUT, PURPOSE_SOURCE_NEUTRAL,
                            PURPOSE_GENERATOR_NEUTRAL, PURPOSE_COMBINED_LPS, PURPOSE_FUNCTIONAL],
@@ -583,6 +584,7 @@ class SingleRodForm(Form):
         values.update(self._panel_data)
         for key in ("location_profile_id", "location_profile_name", "location_data_source",
                     "soil_data_quality", "location_warning", "customer_project_fields",
+                    "project_object_type", "allocated_power_kw", "incoming_device_type",
                     "project_address_source", "project_address_parameter",
                     "normalized_address", "latitude", "longitude", "qc_geo", "fias_id", "dadata_method",
                     "online_updated_utc", "online_errors", "data_provenance",
